@@ -2,89 +2,120 @@
   <h1 class="list-heading mb__small">To do list:</h1>
   <div class="todo-container">
     <ul class="todo-list">
-      <li class="todo-list__item">
-        <div class="todo-list__content">
-          <input
-            class="todo-list__checkbox"
-            type="checkbox"
-            name="completed"
-            id=""
-          />
-          <span class="todo-list__text">Item</span>
-        </div>
+      <li
+        v-for="todo in todos"
+        :key="todo.id"
+        class="todo-list__item"
+        :class="{ 'todo-list__item_done': todo.completed }"
+      >
+        <div
+          class="todo-list__item-holder"
+          v-if="todo.location === 'home'"
+          :data-status="todo.completed"
+        >
+          <div class="todo-list__content">
+            <input
+              @change="updateTodo($event, todo.id)"
+              class="todo-list__checkbox"
+              type="checkbox"
+              name="completed"
+              :data-id="todo.id"
+              :checked="todo.completed"
+            />
+            <span class="todo-list__text">{{ todo.name }}</span>
+          </div>
 
-        <div class="btn-container">
-          <button class="btn-container__btn_delete">
-            <ion-icon
-              class="btn-container__icon_delete"
-              name="trash-outline"
-            ></ion-icon>
-          </button>
-          <button class="btn-container__btn_archive">
-            <ion-icon
-              class="btn-container__icon_archive"
-              name="archive-outline"
-            ></ion-icon>
-          </button>
-        </div>
-      </li>
-      <li class="todo-list__item">
-        <span class="todo-list__text">Item</span>
-
-        <div class="btn-container">
-          <button class="btn-container__btn_delete">
-            <ion-icon
-              class="btn-container__icon_delete"
-              name="trash-outline"
-            ></ion-icon>
-          </button>
-          <button class="btn-container__btn_archive">
-            <ion-icon
-              class="btn-container__icon_archive"
-              name="archive-outline"
-            ></ion-icon>
-          </button>
-        </div>
-      </li>
-      <li class="todo-list__item">
-        <span class="todo-list__text">Item</span>
-
-        <div class="btn-container">
-          <button class="btn-container__btn_delete">
-            <ion-icon
-              class="btn-container__icon_delete"
-              name="trash-outline"
-            ></ion-icon>
-          </button>
-          <button class="btn-container__btn_archive">
-            <ion-icon
-              class="btn-container__icon_archive"
-              name="archive-outline"
-            ></ion-icon>
-          </button>
+          <div class="btn-container">
+            <button @click="deleteTodo(id)" class="btn-container__btn_delete">
+              <ion-icon
+                class="btn-container__icon_delete"
+                name="trash-outline"
+              ></ion-icon>
+            </button>
+            <button @click="archiveTodo(id)" class="btn-container__btn_archive">
+              <ion-icon
+                class="btn-container__icon_archive"
+                name="archive-outline"
+              ></ion-icon>
+            </button>
+          </div>
         </div>
       </li>
     </ul>
     <div class="todo-input">
-      <input class="todo-input__input" type="text" placeholder="Feed a cat" />
-      <button class="todo-input__btn_add">Add to list</button>
+      <input
+        v-model="todoItem"
+        class="todo-input__input"
+        type="text"
+        placeholder="Feed a cat"
+        @keydown.enter="addTodo"
+      />
+      <button @click="addTodo" class="todo-input__btn_add">Add to list</button>
     </div>
   </div>
 </template>
 
 <script>
-// import { useStore } from "vuex";
-// import { v4 as uuid4 } from "uuid";
+import { useStore } from "vuex";
+import { v4 as uuidv4 } from "uuid";
 
 export default {
   name: "TodoList",
   data() {
     return {
-      newTodoItem: "",
+      todoItem: "",
     };
   },
   prop: {
     location: String,
+  },
+  setup() {
+    // Open our Vuex store
+    const store = useStore();
+    // And use our getter to get the data.
+    // When we use return {} here, it will
+    // pass our todos list data straight to
+    // our data() function above.
+
+    return {
+      todos: store.getters.todos,
+    };
+  },
+  methods: {
+    updateTodo(e, id) {
+      let newStatus = e.target.checked;
+      //   console.log(e.target.checked, id);
+      this.$store.commit("updateTodo", {
+        id,
+        completed: newStatus,
+      });
+    },
+    addTodo() {
+      if (this.todoItem) {
+        console.log(this.todoItem);
+        this.$store.commit("addTodo", {
+          id: uuidv4(),
+          name: this.todoItem,
+          completed: false,
+        });
+        this.todoItem = "";
+      }
+    },
+    deleteTodo: function (id) {
+      // This will fire our "deleteTodo" mutation, and delete
+      // this todo item according to their ID
+      this.$store.commit("deleteTodo", {
+        id,
+      });
+    },
+    archiveTodo: function (id) {
+      // Finally, we can change or archive an item
+      // using our "moveTodoItem" mutation
+      this.$store.commit("moveTodoItem", {
+        id,
+        location: "archive",
+      });
+    },
   },
 };
 </script>
@@ -106,8 +137,13 @@ export default {
       display: flex;
       gap: 2rem;
       align-items: center;
+      color: #42b983;
     }
-    &__item {
+    &__item_done {
+      color: #333;
+      text-decoration: line-through;
+    }
+    &__item-holder {
       padding: 1.2rem;
       border-bottom: 2px solid #ddd;
       display: flex;
