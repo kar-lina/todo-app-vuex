@@ -10,7 +10,7 @@
       >
         <div
           class="todo-list__item-holder"
-          v-if="todo.location === 'home'"
+          v-if="todo.location === location"
           :data-status="todo.completed"
         >
           <div class="todo-list__content">
@@ -72,7 +72,7 @@ export default {
       todoItem: "",
     };
   },
-  prop: {
+  props: {
     location: String,
   },
   setup() {

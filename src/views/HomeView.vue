@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <TodoList :location="home" />
+    <TodoList location="home" />
   </div>
 </template>
 
