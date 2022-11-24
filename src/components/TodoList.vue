@@ -26,13 +26,19 @@
           </div>
 
           <div class="btn-container">
-            <button @click="deleteTodo(id)" class="btn-container__btn_delete">
+            <button
+              @click="deleteTodo(todo.id)"
+              class="btn-container__btn_delete"
+            >
               <ion-icon
                 class="btn-container__icon_delete"
                 name="trash-outline"
               ></ion-icon>
             </button>
-            <button @click="archiveTodo(id)" class="btn-container__btn_archive">
+            <button
+              @click="archiveTodo(todo.id)"
+              class="btn-container__btn_archive"
+            >
               <ion-icon
                 class="btn-container__icon_archive"
                 name="archive-outline"

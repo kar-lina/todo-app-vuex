@@ -52,6 +52,7 @@ export default createStore({
         typeof todoItem.completed === "boolean"
       ) {
         state.todos.push({ ...todoItem, location: "home" });
+        console.log(state.todos);
       }
     },
     deleteTodo(state, todoItem) {
